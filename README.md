@@ -64,3 +64,23 @@ $ cast send <contract address> "safeMint(address)(uint256)" <caller address from
 $ cast call <contract address> "currentTokenId()" <caller address from saved credential> --account <your saved credential name> --rpc-url $RPC_BASE_SEPOLIA
 ```
 
+### Test UI
+
+The sample web page will submit the transaction to the address entered on the page.
+- Deploy the contract and capture the address 
+- Install metamask in target browser
+- Select the correct network (e.g. Base Sepolia) in Metamask
+- Open the browser's javascript console to view logs
+
+Using a local web server avoids needing to adjust metamask settings to run on local files.
+
+```shell
+$ cd test
+$ python3 -m http.server --bind localhost
+```
+
+Then, open the page
+```shell
+http://localhost:8000/TestMint.html
+```
+

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ValueBadgeNFT test</title>
+    <style>
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+</head>
+
+<body>
+    <button id="connectButton">Connect to Metamask</button>
+    <br>
+    <br>
+    Enter contract address on current network
+    <input id="inputField" />
+    <button id="submitButton">Mint now!</button>
+
+    <script>
+        const connectButton = document.getElementById('connectButton');
+
+        connectButton.addEventListener('click', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    console.log("First address:", accounts[0]);
+                } catch (error) {
+                    console.error(error);
+                }
+            } else {
+                alert('Please install Metamask!');
+            }
+        });
+
+        const submitButton = document.getElementById('submitButton');
+
+        submitButton.addEventListener('click', async () => {
+            const contractAddress = document.getElementById('inputField').value;
+            console.log("contract address ", contractAddress);
+
+            web3 = new Web3(window.ethereum);
+            if (web3.utils.isAddress(contractAddress)) {
+                submitMint(contractAddress);
+            } else {
+                console.log("Invalid address, stopping");
+            }
+        });
+
+        // ABI specific to this contract
+        const abi = [
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "name": "to",
+                        "type": "address"
+                    }
+                ],
+                "name": "safeMint",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        async function submitMint(contractAddress) {
+            console.log("Starting mint");
+
+            web3 = new Web3(window.ethereum);
+            const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+            const account = accounts[0]; // default to first connected account
+
+            const contract = new web3.eth.Contract(abi, contractAddress);
+            contract.methods.safeMint(account).send({ from: account })
+                .on('transactionHash', function (hash) {
+                    console.log("Transaction hash: " + hash);
+                })
+                .on('confirmation', function(confirmationNumber, receipt){
+                        console.log("Confirmation number: " + confirmationNumber);
+                });
+
+            console.log("Mint requested");
+        }
+    </script>
+</body>
+
+</html>
