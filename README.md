@@ -1,19 +1,41 @@
-## Foundry
+## ValueBadge
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This project is a demonstration of some introductory Solidity smart contract features using Foundry and Chainlink, and is tested on Base.
 
-Foundry consists of:
+The ValueBadgeNFT contract allows a caller to create an NFT that captures the current ETH balance and the equivalent USD value based on current price.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Tests are instrumented to verify on Base Sepolia using known blocks and oracle values, as well as testing on Base mainnet.
 
-## Documentation
-
-https://book.getfoundry.sh/
+Deployment scripts support multiple chains, but additional values will need to be added to `foundry.toml` and `.env` to support them.
 
 ## Usage
+
+### Setup
+
+This project has the following dependencies, which should be installed
+- chainlink-brownie-contracts
+- forge-std
+- openzepplin-contracts
+
+```shell
+ $ forge install OpenZeppelin/openzeppelin-contracts --no-commit
+ $ forge install smartcontractkit/chainlink-brownie-contracts --no-commit
+```
+
+
+### ENV
+
+Setup the .env file similar to the following.  Note that the ETHERACAN variable contains an API key from basescan.org for Base.
+
+```shell
+RPC_BASE_SEPOLIA=https://base-sepolia.g.alchemy.com/v2/<your api key>
+RPC_BASE_MAINNET=https://base-mainnet.g.alchemy.com/v2/<your api key>
+
+CHAINLINK_ORACLE_USDETH_MAINNET=0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70
+CHAINLINK_ORACLE_USDETH_SEPOLIA=0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1
+
+ETHERSCAN_API_KEY=<your api key>
+```
 
 ### Build
 
@@ -23,44 +45,22 @@ $ forge build
 
 ### Test
 
+Note that because the tests explicitly select chains and blocks, the `--fork-url` and `--fork-block-number` arguments are not needed.  These tests are slower than local-only tests as they are downloading chaindata.
+
 ```shell
 $ forge test
 ```
 
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
 ### Deploy
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+See `scripts/Deploy.s.sol` for details on deploying.  Script and command examples presume `cast` has been set up with a private key already.
 
 ### Cast
 
-```shell
-$ cast <subcommand>
-```
-
-### Help
+After deploying, grab the contract address.  Then testing can be done on the command line, e.g.
 
 ```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+$ cast send <contract address> "safeMint(address)(uint256)" <caller address from saved credential> --account <your saved credential name> --rpc-url $RPC_BASE_SEPOLIA
+$ cast call <contract address> "currentTokenId()" <caller address from saved credential> --account <your saved credential name> --rpc-url $RPC_BASE_SEPOLIA
 ```
+
